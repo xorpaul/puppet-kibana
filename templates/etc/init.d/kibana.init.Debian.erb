@@ -1,0 +1,99 @@
+#!/bin/bash
+#
+# Init script for Kibana
+#
+# chkconfig: - 85 15
+# description: Init script for kibana
+
+### BEGIN INIT INFO
+# Provides: Kibana
+# Required-Start: $local_fs $network $remote_fs
+# Required-Stop: $local_fs $network $remote_fs
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop Kibana
+# Description: Kibana is a webfront end for Elasticsearch
+### END INIT INFO
+
+
+# Source function library.
+. /lib/lsb/init-functions
+
+if [ -r /etc/default/rcS ]; then
+   . /etc/default/rcS
+fi
+
+
+
+DAEMON='<%= scope.lookupvar('kibana::install_path') %>/kibana-daemon.rb'
+
+start() {
+        echo -n $"Starting Kibana: "
+
+        ruby $DAEMON start
+        RETVAL=$?
+
+        if [ $RETVAL = 0 ]; then
+            log_end_msg 0
+        else
+            log_failure_msg "Error executing: ruby $DAEMON start"
+        fi
+
+        echo
+        return $RETVAL
+}
+
+stop() {
+        echo -n $"Stopping Kibana: "
+        ruby $DAEMON stop
+        RETVAL=$?
+        if [ $RETVAL = 0 ]; then
+            log_end_msg 0
+        else
+            log_failure_msg "Error executing: ruby $DAEMON stop"
+        fi
+
+        rm -rf <%= scope.lookupvar('kibana::install_path') %>/tmp/kibana.rb.pid
+
+        echo
+        return $RETVAL
+}
+
+restart () {
+        stop
+        start
+}
+
+status () {
+        ruby $DAEMON status
+        RETVAL=$?
+        return $RETVAL
+}
+
+force_reload () {
+        restart
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        status
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status|force-reload}"
+        exit 2
+esac
+
+exit $?
