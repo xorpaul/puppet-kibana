@@ -26,15 +26,18 @@ class kibana::config {
 
   #### Configuration
 
-  if $kibana::config_file != false {
+  #notify { "kibana::config_file: ${kibana::config_file} --": }
+  #notify { "kibana::install_path: ${kibana::install_path} --": }
+
+  if $kibana::config_file == true {
 
     file { 'kibana_config':
       ensure  => 'present',
-      path    => '/usr/local/kibana/KibanaConfig.rb',
+      path    => "${kibana::install_path}/KibanaConfig.rb",
       mode    => '0644',
       owner   => 'root',
       group   => 'root',
-      source  => "puppet:///${kibana::config_file}",
+      content => template("${module_name}/KibanaConfig.rb.erb"),
       notify  => Service['kibana'],
     }
 
