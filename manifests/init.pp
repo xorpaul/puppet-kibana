@@ -75,19 +75,25 @@
 # * Richard Pijnenburg <mailto:richard@ispavailability.com>
 #
 class kibana(
-  $ensure      = $kibana::params::ensure,
-  $autoupgrade = $kibana::params::autoupgrade,
-  $status      = $kibana::params::status,
-  $pkg_source  = undef,
-  $version     = false,
-  $standalone  = true,
-  $config_file = false
+  $ensure       = $kibana::params::ensure,
+  $autoupgrade  = $kibana::params::autoupgrade,
+  $status       = $kibana::params::status,
+  $pkg_source   = undef,
+  $version      = false,
+  $standalone   = true,
+  $config_file  = false,
+  $install_path = undef,
+  $elasticsearch_servers = $kibana::params::elasticsearch_servers,
+  $elasticsearch_timeout = $kibana::params::elasticsearch_timeout,
+  $listening_ip = $kibana::params::listening_ip,
+  $listening_port = $kibana::params::listening_port,
+  $results_per_page = $kibana::params::results_per_page
 ) inherits kibana::params {
 
   #### Validate parameters
 
   # ensure
-  if ! ($ensure in [ 'present', 'absent' ]) {
+  if ! ($ensure in [ 'present', 'absent', 'unmanaged' ]) {
     fail("\"${ensure}\" is not a valid ensure parameter value")
   }
 
@@ -128,6 +134,11 @@ class kibana(
 
     # we need the software and a working configuration before running a service
     Class['kibana::package'] -> Class['kibana::service']
+    Class['kibana::config']  -> Class['kibana::service']
+
+  } elsif $ensure == 'unmanaged' {
+    # Get the init file bfore handling the service
+    Class['kibana::standalone'] -> Class['kibana::service']
     Class['kibana::config']  -> Class['kibana::service']
 
   } else {

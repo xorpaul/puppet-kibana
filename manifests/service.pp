@@ -34,7 +34,9 @@ class kibana::service {
   if $kibana::standalone == true {
 
     # set params: in operation
-    if $kibana::ensure == 'present' {
+    if $kibana::ensure == 'present' or $kibana::ensure == 'unmanaged' {
+
+    #notify { "kibana::ensure: ${kibana::ensure}": }
 
       case $kibana::status {
         # make sure service is currently running, start it on boot
@@ -75,6 +77,7 @@ class kibana::service {
 
     }
 
+    #notify { "ensure: $service_ensure -- enable: $service_enable --": }
     # action
     service { 'kibana':
       ensure     => $service_ensure,

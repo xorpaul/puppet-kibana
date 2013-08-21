@@ -40,6 +40,13 @@ class kibana::params {
   # service status
   $status = 'enabled'
 
+  # KibanaConfig.rb defaults
+  $elasticsearch_servers = ['localhost']
+  $elasticsearch_timeout = 500
+  $listening_port = 5601
+  $listening_ip = $::ipaddress
+  $results_per_page = 100
+
   #### Internal module values
 
   # packages
