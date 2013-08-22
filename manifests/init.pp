@@ -74,20 +74,15 @@
 #
 # * Richard Pijnenburg <mailto:richard@ispavailability.com>
 #
+
 class kibana(
-  $ensure       = $kibana::params::ensure,
-  $autoupgrade  = $kibana::params::autoupgrade,
-  $status       = $kibana::params::status,
-  $pkg_source   = undef,
-  $version      = false,
-  $standalone   = true,
-  $config_file  = false,
-  $install_path = undef,
-  $elasticsearch_servers = $kibana::params::elasticsearch_servers,
-  $elasticsearch_timeout = $kibana::params::elasticsearch_timeout,
-  $listening_ip = $kibana::params::listening_ip,
-  $listening_port = $kibana::params::listening_port,
-  $results_per_page = $kibana::params::results_per_page
+  $ensure                   = $kibana::params::ensure,
+  $pkg_name                 = undef,
+  $install_path             = $kibana::params::install_path,
+  $apache_conf_dir          = $kibana::params::apache_conf_dir,
+  $vhost_name               = $kibana::params::vhost_name,
+  $serveradmin              = $kibana::serveradmin,
+  $elasticsearch_server     = $kibana::params::elasticsearch_server,
 ) inherits kibana::params {
 
   #### Validate parameters
@@ -97,16 +92,6 @@ class kibana(
     fail("\"${ensure}\" is not a valid ensure parameter value")
   }
 
-  # autoupgrade
-  validate_bool($autoupgrade)
-
-  # service status
-  if ! ($status in [ 'enabled', 'disabled', 'running', 'unmanaged' ]) {
-    fail("\"${status}\" is not a valid status parameter value")
-  }
-
-
-
   #### Manage actions
 
   # package(s)
@@ -115,36 +100,12 @@ class kibana(
   # configuration
   class { 'kibana::config': }
 
-  # service(s)
-  class { 'kibana::service': }
-
-  # Standalone
-  class { 'kibana::standalone': }
-
-
   #### Manage relationships
 
   if $ensure == 'present' {
     # we need the software before configuring it
     Class['kibana::package'] -> Class['kibana::config']
-    Class['kibana::package'] -> Class['kibana::standalone']
 
-    # Get the init file bfore handling the service
-    Class['kibana::standalone'] -> Class['kibana::service']
-
-    # we need the software and a working configuration before running a service
-    Class['kibana::package'] -> Class['kibana::service']
-    Class['kibana::config']  -> Class['kibana::service']
-
-  } elsif $ensure == 'unmanaged' {
-    # Get the init file bfore handling the service
-    Class['kibana::standalone'] -> Class['kibana::service']
-    Class['kibana::config']  -> Class['kibana::service']
-
-  } else {
-
-    # make sure all services are getting stopped before software removal
-    Class['kibana::service'] -> Class['kibana::package']
   }
 
 }
