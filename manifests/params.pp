@@ -34,55 +34,10 @@ class kibana::params {
   # ensure
   $ensure = 'present'
 
-  # autoupgrade
-  $autoupgrade = false
-
-  # service status
-  $status = 'enabled'
-
-  # KibanaConfig.rb defaults
-  $elasticsearch_servers = ['localhost']
-  $elasticsearch_timeout = 500
-  $listening_port = 5601
-  $listening_ip = $::ipaddress
-  $results_per_page = 100
-
-  #### Internal module values
-
-  # packages
-  case $::operatingsystem {
-    'CentOS', 'Fedora', 'Scientific': {
-      # main application
-      $package = [ 'kibana' ]
-    }
-    'Debian', 'Ubuntu': {
-      # main application
-      $package = [ 'kibana' ]
-    }
-    default: {
-      fail("\"${module_name}\" provides no package default value
-            for \"${::operatingsystem}\"")
-    }
-  }
-
-  # service parameters
-  case $::operatingsystem {
-    'CentOS', 'Fedora', 'Scientific': {
-      $service_name       = 'kibana'
-      $service_hasrestart = true
-      $service_hasstatus  = true
-      $service_pattern    = $service_name
-    }
-    'Debian', 'Ubuntu': {
-      $service_name       = 'kibana'
-      $service_hasrestart = true
-      $service_hasstatus  = true
-      $service_pattern    = $service_name
-    }
-    default: {
-      fail("\"${module_name}\" provides no service parameters
-            for \"${::operatingsystem}\"")
-    }
-  }
+  $elasticsearch_server = 'localhost'
+  $install_path = '/usr/local'
+  $apache_conf_dir = '/tmp'
+  $vhost_name = $::fqdn
+  $serveradmin = 'root@localhost'
 
 }
