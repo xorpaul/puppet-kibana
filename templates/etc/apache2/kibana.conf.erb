@@ -1,0 +1,13 @@
+### puppet managed ###
+<VirtualHost <%= scope.lookupvar("::kibana::vhost_name") %>:80>
+  ServerName <%= scope.lookupvar("::kibana::vhost_name") %>
+  ServerAdmin <%= scope.lookupvar("::kibana::serveradmin") %>
+
+  DocumentRoot <%= scope.lookupvar("::kibana::install_path") %>/kibana/
+
+  LogLevel warn
+  CustomLog ${APACHE_LOG_DIR}/<%= scope.lookupvar("::kibana::vhost_name") %>-access.log combined
+  ErrorLog ${APACHE_LOG_DIR}/<%= scope.lookupvar("::kibana::vhost_name") %>-error.log
+</VirtualHost>
+
+# vim: ft=apache syn=apache ts=2 sw=2
