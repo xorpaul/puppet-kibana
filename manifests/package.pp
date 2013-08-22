@@ -29,58 +29,25 @@ class kibana::package {
   # set params: in operation
   if $kibana::ensure == 'present' {
 
-    # Check if we want to install a specific version or not
-    if $kibana::version == false {
-
-      $package_ensure = $kibana::autoupgrade ? {
-        true  => 'latest',
-        false => 'present',
-      }
-
-    } else {
-
-      # install specific version
-      $package_ensure = $kibana::version
-
+    # action
+    file { "${kibana::install_path}/${kibana::pkg_name}":
+      ensure   => $kibana::ensure,
+      source   => "puppet:///modules/${module_name}/${kibana::pkg_name}",
     }
 
-  # set params: removal
-  } else {
-    $package_ensure = 'purged'
-  }
-
-  if $kibana::pkg_source {
-
-    $filenameArray = split($kibana::pkg_source, '/')
-    $basefilename = $filenameArray[-1]
-
-    $extArray = split($basefilename, '\.')
-    $ext = $extArray[-1]
-
-    $tmpSource = "/tmp/${basefilename}"
-
-    file { $tmpSource:
-      source => $kibana::pkg_source,
+    file { $kibana::install_path:
+      ensure => 'directory',
       owner  => 'root',
       group  => 'root',
-      backup => false
+      mode   => '0644',
     }
 
-    case $ext {
-      'deb':   { $pkg_provider = 'dpkg' }
-      'rpm':   { $pkg_provider = 'rpm'  }
-      default: { fail("Unknown file extention \"${ext}\"") }
+    exec { "unzip_${kibana::pkg_name}":
+      cwd     => $kibana::install_path,
+      command => "/bin/tar xfj ${kibana::install_path}/${kibana::pkg_name}",
+      creates => "${kibana::install_path}/kibana",
+      require => [ File[$kibana::install_path], File["${kibana::install_path}/${kibana::pkg_name}"] ],
     }
-  } else {
-    $tmpSource = undef
-    $pkg_provider = undef
-  }
 
-  # action
-  package { $kibana::params::package:
-    ensure   => $package_ensure,
-    source   => $tmpSource,
-    provider => $pkg_provider
   }
-
 }
