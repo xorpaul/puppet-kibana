@@ -28,5 +28,5 @@ Move the archive to the kibana puppet module under files
       install_path         => '/usr/share/kibana', # where to extract kibana
       apache_conf_dir      => '/etc/apache2/sites-enabled', # if this is set it will place a simple vhost file into this dir
       vhost_name           => 'kibana', # defaults to $::fqdn
-      elasticsearch_server => 'logstash.server.lan:9200', # gets inserted in the config.js
+      elasticsearch_server => 'elasticsearch.domain.tld:9200', # gets inserted in the config.js
     }
