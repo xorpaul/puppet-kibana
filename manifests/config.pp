@@ -26,19 +26,22 @@ class kibana::config {
 
   #### Configuration
 
-  #notify { "kibana::config_file: ${kibana::config_file} --": }
-  #notify { "kibana::install_path: ${kibana::install_path} --": }
+  file { "${kibana::install_path}/kibana/config.js":
+    ensure  => 'present',
+    mode    => '0644',
+    owner   => 'root',
+    group   => 'root',
+    content => template("${module_name}/config.js.erb"),
+  }
 
-  if $kibana::config_file == true {
+  if $kibana::apache_conf_dir != undef {
 
-    file { 'kibana_config':
+    file { "${kibana::apache_conf_dir}/kibana.conf":
       ensure  => 'present',
-      path    => "${kibana::install_path}/KibanaConfig.rb",
       mode    => '0644',
       owner   => 'root',
       group   => 'root',
-      content => template("${module_name}/KibanaConfig.rb.erb"),
-      notify  => Service['kibana'],
+      content => template("${module_name}/etc/apache2/kibana.conf.erb"),
     }
 
   }
